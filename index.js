@@ -112,7 +112,37 @@ app.delete('/addtask/:id', async(req,res)=>{
   res.send(result);
 })
 
+////
+app.put('/updatetask/:id', async (req, res) => {
+  const { id } = req.params;
 
+  try {
+    const existingDonationCamp = await TaskCollection.findOne({ _id: new ObjectId(id) });
+
+    if (!existingDonationCamp) {
+      return res.status(404).json({ error: 'Donation campaign not found' });
+    }
+
+    // Update the donation campaign fields
+    existingDonationCamp.title = req.body.title;
+    existingDonationCamp.date = req.body.date;
+    existingDonationCamp.longdesp = req.body.longdesp;
+    existingDonationCamp.priority = req.body.priority;
+    
+
+    // Save the updated donation campaign
+    const updatedDonationCamp = await TaskCollection.findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $set: existingDonationCamp },
+      { returnDocument: 'after' }
+    );
+
+    res.status(200).json({ updated: true, updatedDonationCamp });
+  } catch (error) {
+    console.error('Error updating donation campaign:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
       console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
